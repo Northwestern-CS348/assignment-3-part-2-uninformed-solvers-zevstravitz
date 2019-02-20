@@ -19,3 +19,41 @@ fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
+
+
+#______________________FACTS_______________________
+# (on d p) => disk d is on peg p
+fact: (on disk1 peg3)
+fact: (on disk2 peg3)
+fact: (on disk3 peg1)
+fact: (on disk4 peg1)
+fact: (on disk5 peg1)
+
+# (movable d p1 p2) => disk d can be moved from peg p1 to peg p2
+fact: (movable disk1 peg3 peg2)
+fact: (movable disk1 peg3 peg1)
+fact: (movable disk3 peg1 peg2)
+
+# (bigger x y) => disk x is bigger than disk y
+fact: (bigger disk5 disk4)
+fact: (bigger disk4 disk3)
+fact: (bigger disk3 disk2)
+fact: (bigger disk2 disk1)
+
+# (stacked x y) => disk x is stacked on disk y
+fact: (stacked disk1 disk2)
+fact: (stacked disk3 disk4)
+fact: (stacked disk4 disk5)
+
+# (top d p) => disk d is a top ring on peg p
+fact: (top disk1 peg3)
+fact: (top disk3 peg1)
+
+# (empty x) => peg x is empty
+fact: (empty peg2)
+
+#______________________RULES_______________________
+rule: ((bigger ?x ?y) (bigger ?y ?z) -> (bigger ?x ?z)
+rule: ((stacked ?x ?y) (stacked ?y ?z)) -> (stacked ?x ?z)
+rule: ((top ?d ?p) (empty ?q)) -> (movable ?d ?p ?q)
+rule: ((top ?x ?p) (top ?y ?q) (bigger ?y ?x)) -> (movable ?x ?p ?q)

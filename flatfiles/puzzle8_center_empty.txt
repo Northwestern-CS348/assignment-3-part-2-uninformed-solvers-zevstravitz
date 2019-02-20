@@ -17,3 +17,96 @@ fact: (pred obj1 obj2)
 rule: ((pred obj1 obj2) (pred obj2 obj3)) -> (pred obj1 obj3)
 
 """
+
+#______________________FACTS_______________________
+
+# (movable t p1x p1y p2x p2y) => tile t is movable from (p1x p1y) to (p2x p2y)
+fact: (movable tile2 pos2 pos1 pos2 pos2)
+fact: (movable tile8 pos1 pos2 pos2 pos2)
+fact: (movable tile6 pos2 pos3 pos2 pos2)
+fact: (movable tile4 pos3 pos2 pos2 pos2)
+
+# (posn t x y) => tile t is at block (x,y)
+fact: (posn tile1 pos1 pos1)
+fact: (posn tile2 pos2 pos1)
+fact: (posn tile3 pos3 pos1)
+fact: (posn tile4 pos3 pos2)
+fact: (posn tile5 pos3 pos3)
+fact: (posn tile6 pos2 pos3)
+fact: (posn tile7 pos1 pos3)
+fact: (posn tile8 pos1 pos2)
+fact: (posn tile0 pos2 pos2)
+
+
+# (posx t p) => tile t has an x value of p
+fact: (posx tile1 pos1)
+fact: (posy tile1 pos1)
+fact: (posx tile2 pos2)
+fact: (posy tile2 pos1)
+fact: (posx tile3 pos3)
+fact: (posy tile3 pos1)
+fact: (posx tile4 pos3)
+fact: (posy tile4 pos2)
+fact: (posx tile5 pos3)
+fact: (posy tile5 pos3)
+fact: (posx tile6 pos2)
+fact: (posy tile6 pos3)
+fact: (posx tile7 pos1)
+fact: (posy tile7 pos3)
+fact: (posx tile8 pos1)
+fact: (posy tile8 pos2)
+
+(hastwoc t) => tile t has component component c with value 2
+fact: (hastwo tile2 x)
+fact: (hastwo tile6 x)
+fact: (hastwo tile4 y)
+fact: (hastwo tile8 y)
+
+fact: (notwo tile1 x)
+fact: (notwo tile1 y)
+fact: (notwo tile2 y)
+fact: (notwo tile3 x)
+fact: (notwo tile3 y)
+fact: (notwo tile4 x)
+fact: (notwo tile5 x)
+fact: (notwo tile5 y)
+fact: (notwo tile6 y)
+fact: (notwo tile7 x)
+fact: (notwo tile7 y)
+fact: (notwo tile8 x)
+
+# (empty posx posy) => block at posx and posy is empty
+fact: (empty pos2 pos2)
+
+# (adj t1 t2) => tile t1 and tile t2 are adjacent
+fact: (adj tile1 tile2)
+fact: (adj tile1 tile8)
+
+fact: (adj tile2 tile1)
+fact: (adj tile2 tile3)
+
+fact: (adj tile3 tile2)
+fact: (adj tile3 tile4)
+
+fact: (adj tile4 tile3)
+fact: (adj tile4 tile5)
+
+fact: (adj tile5 tile4)
+fact: (adj tile5 tile6)
+
+fact: (adj tile6 tile5)
+fact: (adj tile6 tile7)
+
+fact: (adj tile7 tile6)
+fact: (adj tile7 tile8)
+
+fact: (adj tile8 tile1)
+fact: (adj tile8 tile7)
+
+#______________________RULES_______________________
+# 1. Share the X coordinate or the Y coordinate
+rule: ((pos ?a ?p ?c) (pos ?b ?p ?c)) -> (adj ?a ?b)
+# 2. Either A or B has the value 2 on the coordinate they do not share.
+rule: ((pos ?a ?p ?c) (pos ?b ?p ?c) (hastwo ?a ?c) (notwo ?b ?c)) -> (adj ?a ?b)
+
+rule: ((adj ?a ?b) (pos ?a ?p ?q) (pos ?b ?r ?s) (empty ?r ?s)) -> (movable ?a ?p ?q ?r ?s)

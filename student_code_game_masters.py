@@ -33,8 +33,29 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        ### student code goes here
-        pass
+
+        find_disk = 0
+        while (True):
+            found = 0
+            peg1_tuple, peg2_tuple, peg3_tuple = (),(),()
+            for fact in GameMaster.kb.facts:
+                if fact.statement.predicate == 'on':
+                    disk_string = fact.statement.terms[0].term.element
+                    peg_string = fact.statement.terms[1].term.element
+                    diskNumber = int(disk_string[-1])
+
+                    if diskNumber == find_disk:
+                        found = 1
+                        if peg_string == "peg1":
+                            peg1_tuple += ([diskNumber])
+                        elif peg_string == "peg2":
+                            peg2_tuple += ([diskNumber])
+                        elif peg_string == "peg3":
+                            peg3_tuple += ([diskNumber])
+                        find_disk += 1
+                        break
+            if found == 0:
+                return (peg1_tuple, peg2_tuple,peg3_tuple)
 
     def makeMove(self, movable_statement):
         """
@@ -52,8 +73,11 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             None
         """
-        ### Student code goes here
-        pass
+        move_disk = movable_statement.terms[0].term.element
+        peg1 = movable_statement.terms[1].term.element
+        peg2 = movable_statement.terms[2].term.element
+
+
 
     def reverseMove(self, movable_statement):
         """
@@ -99,8 +123,39 @@ class Puzzle8Game(GameMaster):
         Returns:
             A Tuple of Tuples that represent the game state
         """
-        ### Student code goes here
-        pass
+        row1, row2, row3 = (),(),()
+        for column in range(1,5):
+            for row in range(1,5):
+                found = 0
+                for fact in self.kb.facts:
+                    if fact.statement.predicate == "posn":
+                        tile_string = fact.statement.terms[0].term.element
+                        column_string = fact.statement.terms[1].term.element
+                        row_string = fact.statement.terms[2].term.element
+
+                        tile_num = int(tile_string[-1])
+                        column_num = int(column_string[-1])
+                        row_num = int(row_string[-1])
+
+                        if row_num == row and column_num == column:
+                            found = 1
+                            if row_num == 1:
+                                row1 += tuple([tile_num])
+                            elif row_num == 2:
+                                row2 += tuple([tile_num])
+                            elif row_num == 3:
+                                row3 += tuple([tile_num])
+                            break
+
+                if found == 0:
+                    if row == 1:
+                        row1 += tuple([-1])
+                    elif row == 2:
+                        row2 += tuple([-1])
+                    elif row == 3:
+                        row3 += tuple([-1])
+
+        return (row1, row2, row3)
 
     def makeMove(self, movable_statement):
         """
