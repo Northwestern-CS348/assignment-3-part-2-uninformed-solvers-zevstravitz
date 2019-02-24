@@ -162,41 +162,33 @@ class Puzzle8Game(GameMaster):
         #all rows begin as being empty
         row1, row2, row3 = (),(),()
         # comb through all of the tiles
-        for column in range(1,5):
-            for row in range(1,5):
-                # assume tile hasn't been found
-                found = 0
-                for fact in self.kb.facts:
-                    if fact.statement.predicate == "posn":
-                        # Break up the fact
-                        tile_string = fact.statement.terms[0].term.element
-                        column_string = fact.statement.terms[1].term.element
-                        row_string = fact.statement.terms[2].term.element
+        for fact in self.kb.facts:
+            if fact.statement.predicate == "coordinate":
+                # Break up the fact
+                tile_string = fact.statement.terms[0].term.element
+                column_string = fact.statement.terms[1].term.element
+                row_string = fact.statement.terms[2].term.element
 
-                        # Convert to integer form
-                        tile_num = int(tile_string[-1])
-                        column_num = int(column_string[-1])
-                        row_num = int(row_string[-1])
+                column_num = int(column_string[-1])
+                row_num = int(row_string[-1])
 
-                        if row_num == row and column_num == column: # If the loop position matches the pos from the Fact
-                            found = 1
-                            if row_num == 1:
-                                row1 += tuple([tile_num])
-                            elif row_num == 2:
-                                row2 += tuple([tile_num])
-                            elif row_num == 3:
-                                row3 += tuple([tile_num])
-                            break
-
-                # Where there is no tile to be found at a position, we assume it's empty...
-                if found == 0:
-                    if row == 1:
+                if tile_string[-1] == 'y':
+                    if row_num == 1:
                         row1 += tuple([-1])
-                    elif row == 2:
+                    elif row_num == 2:
                         row2 += tuple([-1])
-                    elif row == 3:
+                    elif row_num == 3:
                         row3 += tuple([-1])
+                    continue
 
+                tile_num = int(tile_string[-1])
+
+                if row_num == 1:
+                    row1 += tuple([tile_num])
+                elif row_num == 2:
+                    row2 += tuple([tile_num])
+                elif row_num == 3:
+                    row3 += tuple([tile_num])
         return (row1, row2, row3)
 
     def makeMove(self, movable_statement):
