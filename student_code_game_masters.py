@@ -43,18 +43,13 @@ class TowerOfHanoiGame(GameMaster):
 
         if disks_on_peg1:
             for disks in disks_on_peg1:
-                # get the name and take the last index for the number
-                disk = int(str(disks.bindings[0].constant)[-1])
-                t1.append(disk)
+                t1.append(int(str(disks.bindings[0].constant)[-1]))
         if disks_on_peg2:
             for disks in disks_on_peg2:
-                disk = int(str(disks.bindings[0].constant)[-1])
-                t2.append(disk)
+                t2.append(int(str(disks.bindings[0].constant)[-1]))
         if disks_on_peg3:
             for disks in disks_on_peg3:
-                disk_string = str(disks.bindings[0].constant)[-1]
-                disk_int = int(disk_string)
-                t3.append(disk_int)
+                t3.append(int(str(disks.bindings[0].constant)[-1]))
 
         t1.sort()
         t2.sort()
@@ -80,38 +75,33 @@ class TowerOfHanoiGame(GameMaster):
         Returns:
             None
         """
-        move_disk = movable_statement.terms[0].term.element
-        peg_init = movable_statement.terms[1].term.element
-        peg_final = movable_statement.terms[2].term.element
+        disk = movable_statement.terms[0]
+        peg_init = movable_statement.terms[1]
+        peg_final = movable_statement.terms[2]
 
-        # ______________RESET FACTS AT OLD POSITION_______________
-        self.kb.kb_retract(parse_input("fact: (on " + move_disk + " " + peg_init + ")"))
-        self.kb.kb_retract(parse_input("fact: (top " + move_disk + " " + peg_init + ")"))
+        self.kb.kb_retract(Fact(Statement(['on', disk, peg_init])))
+        self.kb.kb_retract(Fact(Statement(['top', disk, peg_init])))
 
-        old_under_disk = self.kb.kb_ask(parse_input("fact: (onTopOf " + move_disk + "?x)"))
+        under_disk_init = self.kb.kb_ask(Fact(Statement(['onTopOf', disk, '?x'])))
 
-        if not old_under_disk:
-            self.kb.kb_assert(parse_input('fact: (empty ' + peg_init + ')'))
+        if under_disk_init:
+            underneath_init = under_disk_init[0].bindings_dict['?x']
+            self.kb.kb_retract(Fact(Statement(['onTopOf', disk, underneath_init])))
+            self.kb.kb_assert(Fact(Statement(['top', underneath_init, peg_init])))
         else:
-            below_disk = old_under_disk[0].bindings_dict['?x']
-            self.kb.kb_assert(parse_input('fact: (top ' + below_disk + ' ' + peg_init + ')'))
-            self.kb.kb_retract(parse_input('fact: (onTopOf ' + move_disk + ' ' + below_disk + ')'))
+            self.kb.kb_assert(Fact(Statement(['empty', peg_init])))
 
-        # ______________RESET FACTS AT NEW POSITION_______________
-        new_empty_under = self.kb.kb_ask(parse_input('fact: (empty ' + peg_final + ')'))
-
-        if not new_empty_under:
-            curr_target_top = self.kb.kb_ask(parse_input('fact: (top ?x ' + peg_final + ')'))
-            below_disk = curr_target_top[0].bindings_dict['?x']
-            self.kb.kb_retract(parse_input('fact: (top ' + below_disk + ' ' + peg_final + ')'))
-
-            self.kb.kb_assert(parse_input('fact: (top ' + move_disk + ' ' + peg_final))
-            self.kb.kb_assert(parse_input('fact: (onTopOf ' + move_disk + ' ' + below_disk))
-            self.kb.kb_assert(parse_input('fact: (on ' + move_disk + ' ' + peg_final + ')'))
+        if self.kb.kb_ask(Fact(Statement(['empty', peg_final]))):
+            self.kb.kb_retract(Fact(Statement(['empty', peg_final])))
         else:
-            self.kb.kb_retract(parse_input('fact: (empty ' + peg_final + ')'))
-            self.kb.kb_assert(parse_input('fact: (top ' + move_disk + ' ' + peg_final + ')'))
-            self.kb.kb_assert(parse_input('fact: (on ' + move_disk + ' ' + peg_final + ')'))
+            under_disk_final = self.kb.kb_ask(Fact(Statement(['top','?y', peg_final])))
+            underneath_final = under_disk_final[0].bindings_dict['?y']
+            self.kb.kb_retract(Fact(Statement(['top', underneath_final, peg_final])))
+            self.kb.kb_assert(Fact(Statement(['onTopOf', disk, underneath_final])))
+
+        self.kb.kb_assert(Fact(Statement(['on', disk, peg_final])))
+        self.kb.kb_assert(Fact(Statement(['top', disk, peg_final])))
+
 
     def reverseMove(self, movable_statement):
         """
@@ -189,6 +179,7 @@ class Puzzle8Game(GameMaster):
                     row2 += tuple([tile_num])
                 elif row_num == 3:
                     row3 += tuple([tile_num])
+
         return (row1, row2, row3)
 
     def makeMove(self, movable_statement):
